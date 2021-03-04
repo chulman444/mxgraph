@@ -36,6 +36,7 @@ function Sidebar(editorUi, container)
 	
 	this.pointerMoveHandler = mxUtils.bind(this, function(evt)
 	{
+		// console.log(`this.pointerMoveHandler`)
 		var src = mxEvent.getSource(evt);
 		
 		while (src != null)
@@ -2595,6 +2596,11 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	// Blocks default click action
 	mxEvent.addListener(elt, 'click', function(evt)
 	{
+		/**
+		 * 2021-02-20 15:19
+		 * The shape is already created at this point. Tested by clicking on the shape in the Sidebar.
+		 */
+		// console.log(`Sidebar.prototype.createItem > mxEvent.addListener(elt, 'click', function(evt)`)
 		mxEvent.consume(evt);
 	});
 
@@ -2717,6 +2723,7 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 	
 	return mxUtils.bind(this, function(graph, evt, target, x, y, force)
 	{
+		console.log(`Sidebar.prototype.createDropHandler bound function`)
 		var elt = (force) ? null : ((mxEvent.isTouchEvent(evt) || mxEvent.isPenEvent(evt)) ?
 			document.elementFromPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt)) :
 			mxEvent.getSource(evt));
@@ -3264,6 +3271,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 	// Stops dragging if cancel is pressed
 	graph.addListener(mxEvent.ESCAPE, function(sender, evt)
 	{
+		console.log(`graph.addListener(mxEvent.ESCAPE, function(sender, evt)`)
 		if (dragSource.isActive())
 		{
 			dragSource.reset();

@@ -591,6 +591,7 @@ mxGraphHandler.prototype.consumeMouseEvent = function(evtName, me)
  */
 mxGraphHandler.prototype.mouseDown = function(sender, me)
 {
+	console.log(`mxGraphHandler.prototype.mouseDown`)
 	if (!me.isConsumed() && this.isEnabled() && this.graph.isEnabled() &&
 		me.getState() != null && !mxEvent.isMultiTouchEvent(me.getEvent()))
 	{
@@ -1011,8 +1012,25 @@ mxGraphHandler.prototype.checkPreview = function()
  */
 mxGraphHandler.prototype.mouseMove = function(sender, me)
 {
+	// console.log(`mxGraphHandler.prototype.mouseMove | this.livePreviewActive: ${this.livePreviewActive}`)
 	var graph = this.graph;
 
+	// console.log(!me.isConsumed())
+	// console.log(graph.isMouseDown)
+	/**
+	 * 2021-02-23 15:02
+	 * When I changed `mxVertexHandler.mouseMove` to not consume the `me`, `!me.isConsumed()` is true but
+	 * `this.cell != null` and `this.first != null` evaulates to false.
+	 * 
+	 * 2021-02-23 15:10 
+	 * 
+	 * These are assigned in `start` when `mouseDown` is being executed.
+	 */
+	// console.log(this.cell != null)
+	// console.log(this.first != null)
+	// console.log(this.bounds != null)
+	// console.log(!this.suspended)
+	// console.log(!me.isConsumed() && graph.isMouseDown && this.cell != null && this.first != null && this.bounds != null && !this.suspended)
 	if (!me.isConsumed() && graph.isMouseDown && this.cell != null &&
 		this.first != null && this.bounds != null && !this.suspended)
 	{
@@ -1135,7 +1153,9 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 		// Cancels the bubbling of events to the container so
 		// that the droptarget is not reset due to an mouseMove
 		// fired on the container with no associated state.
+		console.log(`Before mxEvent.consume(me.getEvent());`, me.evt.cancelBubble)
 		mxEvent.consume(me.getEvent());
+		console.log(`After mxEvent.consume(me.getEvent());`, me.evt.cancelBubble)
 	}
 	else if ((this.isMoveEnabled() || this.isCloneEnabled()) && this.updateCursor && !me.isConsumed() &&
 			(me.getState() != null || me.sourceState != null) && !graph.isMouseDown)
@@ -1584,6 +1604,7 @@ mxGraphHandler.prototype.setHighlightColor = function(color)
  */
 mxGraphHandler.prototype.mouseUp = function(sender, me)
 {
+	console.log(`mxGraphHandler.prototype.mouseUp`)
 	if (!me.isConsumed())
 	{
 		if (this.livePreviewUsed)

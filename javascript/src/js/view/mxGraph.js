@@ -12523,10 +12523,12 @@ mxGraph.prototype.selectCellsForEvent = function(cells, evt)
  */
 mxGraph.prototype.createHandler = function(state)
 {
+	console.log(`mxGraph.prototype.createHandler`)
 	var result = null;
 	
 	if (state != null)
 	{
+		console.log(`if (this.model.isEdge(state.cell)): ${this.model.isEdge(state.cell)}`)
 		if (this.model.isEdge(state.cell))
 		{
 			var source = state.getVisibleTerminalState(true);
@@ -12892,7 +12894,7 @@ mxGraph.prototype.getEventState = function(state)
  * sender - Optional sender argument. Default is this.
  */
 mxGraph.prototype.fireMouseEvent = function(evtName, me, sender)
-{
+{	
 	if (this.isEventSourceIgnored(evtName, me))
 	{
 		if (this.tooltipHandler != null)
@@ -13036,6 +13038,7 @@ mxGraph.prototype.fireMouseEvent = function(evtName, me, sender)
 					me.getEvent().returnValue = true;
 				}
 				
+				let before_consumed = me.consumed
 				for (var i = 0; i < this.mouseListeners.length; i++)
 				{
 					var l = this.mouseListeners[i];
@@ -13051,6 +13054,15 @@ mxGraph.prototype.fireMouseEvent = function(evtName, me, sender)
 					else if (evtName == mxEvent.MOUSE_UP)
 					{
 						l.mouseUp.apply(l, args);
+					}
+					
+					if(before_consumed == false && me.consumed) {
+						console.log(`mxGraph.prototype.fireMouseEvent > for (var i = 0; i < this.mouseListeners.length; i++) > evtName : ${evtName}`)
+						console.log(l.constructor, l.constructor.name, me.consumed, `defaultPrevented: ${me.evt.defaultPrevented} || cancelBubble: ${me.evt.cancelBubble}`)
+						// console.log(`defaultPrevented: ${me.evt.defaultPrevented}, cancelBubble: ${me.evt.cancelBubble}`)
+						// console.log(me)
+						
+						before_consumed = true
 					}
 				}
 			}

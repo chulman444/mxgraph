@@ -4,7 +4,6 @@
  */
 var mxEvent =
 {
-
 	/**
 	 * Class: mxEvent
 	 * 
@@ -57,6 +56,8 @@ var mxEvent =
 			
 			return function(element, eventName, funct)
 			{
+				// console.log(`mxEvent addListener`)
+				// console.log(element, eventName)
 				element.addEventListener(eventName, funct,
 					(supportsPassive) ?
 					{passive: false} : false);
@@ -253,6 +254,8 @@ var mxEvent =
 			}
 			else if (!mxEvent.isConsumed(evt))
 			{
+				console.log(`mxEvent.redirectMouseEvents > mxEvent.addGestureListeners > start`)
+				console.log(node)
 				graph.fireMouseEvent(mxEvent.MOUSE_DOWN, new mxMouseEvent(evt, getState(evt)));
 			}
 		},
@@ -264,6 +267,7 @@ var mxEvent =
 			}
 			else if (!mxEvent.isConsumed(evt))
 			{
+				console.log(`mxEvent.redirectMouseEvents > mxEvent.addGestureListeners > move`)
 				graph.fireMouseEvent(mxEvent.MOUSE_MOVE, new mxMouseEvent(evt, getState(evt)));
 			}
 		},

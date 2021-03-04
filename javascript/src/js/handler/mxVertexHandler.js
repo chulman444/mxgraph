@@ -593,8 +593,13 @@ mxVertexHandler.prototype.isCustomHandleEvent = function(me)
  * event all subsequent events of the gesture are redirected to this
  * handler.
  */
+/**
+ * 2021-02-21 21:46
+ * 
+ */
 mxVertexHandler.prototype.mouseDown = function(sender, me)
 {
+	console.log("mxVertexHandler.prototype.mouseDown")
 	if (!me.isConsumed() && this.graph.isEnabled())
 	{
 		var handle = this.getHandleForEvent(me);
@@ -839,11 +844,18 @@ mxVertexHandler.prototype.roundLength = function(length)
  */
 mxVertexHandler.prototype.mouseMove = function(sender, me)
 {
+	// console.log(`mxVertexHandler.prototype.mouseMove`)
+	// console.log(this.index)
+	/**
+	 * 2021-02-20 13:33 
+	 * 
+	 * Drag and drop for moving isn't handled here. `this.index == null` in such case just like
+	 * moving the mouse in the app.
+	 */
 	if (!me.isConsumed() && this.index != null)
 	{
 		// Checks tolerance for ignoring single clicks
 		this.checkTolerance(me);
-
 		if (!this.inTolerance)
 		{
 			if (this.index <= mxEvent.CUSTOM_HANDLE)
@@ -880,12 +892,14 @@ mxVertexHandler.prototype.mouseMove = function(sender, me)
 			}
 			else if (this.index == mxEvent.LABEL_HANDLE)
 			{
+				console.log(`this.moveLabel`)
 				this.moveLabel(me);
 			}
 			else
 			{
 				if (this.index == mxEvent.ROTATION_HANDLE)
 				{
+					console.log(`this.rotateVertex`)
 					this.rotateVertex(me);
 				}
 				else
@@ -897,6 +911,7 @@ mxVertexHandler.prototype.mouseMove = function(sender, me)
 			}
 		}
 		
+		// console.log(`mouseMove isConsumed:`, me.isConsumed())
 		me.consume();
 	}
 	// Workaround for disabling the connect highlight when over handle
@@ -999,6 +1014,7 @@ mxVertexHandler.prototype.rotateVertex = function(me)
  */
 mxVertexHandler.prototype.resizeVertex = function(me)
 {
+	console.log(`mxVertexHandler.prototype.resizeVertex`)
 	var ct = new mxPoint(this.state.getCenterX(), this.state.getCenterY());
 	var alpha = mxUtils.toRadians(this.state.style[mxConstants.STYLE_ROTATION] || '0');
 	var point = new mxPoint(me.getGraphX(), me.getGraphY());
@@ -1018,10 +1034,17 @@ mxVertexHandler.prototype.resizeVertex = function(me)
 	dy = ty;
 
 	var geo = this.graph.getCellGeometry(this.state.cell);
-	this.unscaledBounds = this.union(geo, dx / scale, dy / scale, this.index,
-		this.graph.isGridEnabledEvent(me.getEvent()), 1,
-		new mxPoint(0, 0), this.isConstrainedEvent(me),
-		this.isCenteredEvent(this.state, me));
+	this.unscaledBounds = this.union(
+		geo, // bounds 
+		dx / scale,  // dx
+		dy / scale, // dy
+		this.index, // index
+		this.graph.isGridEnabledEvent(me.getEvent()), // gridEnabled
+		1, // scale
+		new mxPoint(0, 0), // tr
+		this.isConstrainedEvent(me), // constrained 
+		this.isCenteredEvent(this.state, me)  // centered
+	);
 	
 	// Keeps vertex within maximum graph or parent bounds
 	if (!geo.relative)
@@ -1096,9 +1119,21 @@ mxVertexHandler.prototype.resizeVertex = function(me)
 	}
 	
 	var old = this.bounds;
-	this.bounds = new mxRectangle(((this.parentState != null) ? this.parentState.x : tr.x * scale) +
-		(this.unscaledBounds.x) * scale, ((this.parentState != null) ? this.parentState.y : tr.y * scale) +
-		(this.unscaledBounds.y) * scale, this.unscaledBounds.width * scale, this.unscaledBounds.height * scale);
+	/**
+	 * 2021-02-21 17:00
+	 * `this.parentState` exists when an element is grouped and that element is resized within
+	 * the group.
+	 */
+	console.log(`Before || this.bounds = new mxRectangle. this.parentState:`)
+	console.log(this.parentState)
+	this.bounds = new mxRectangle(
+		((this.parentState != null) ? this.parentState.x : tr.x * scale) +
+			(this.unscaledBounds.x) * scale,
+		((this.parentState != null) ? this.parentState.y : tr.y * scale) +
+			(this.unscaledBounds.y) * scale,
+		this.unscaledBounds.width * scale,
+		this.unscaledBounds.height * scale
+	);
 
 	if (geo.relative && this.parentState != null)
 	{
@@ -1146,11 +1181,22 @@ mxVertexHandler.prototype.resizeVertex = function(me)
 		this.childOffsetX = 0;
 		this.childOffsetY = 0;
 	}
-			
+	/**
+	 * 2021-02-20 13:20
+	 * All code up to here is executed. The if statement prevents the body of it being called
+	 * for every pixel.
+	 */
+	// console.log(`Before if (!old.equals(this.bounds))`)
 	if (!old.equals(this.bounds))
-	{	
+	{
+		console.log(`if (!old.equals(this.bounds)):`)
+		console.log(old, this.bounds)
 		if (this.livePreviewActive)
 		{
+			/**
+			 * 2021-02-23 14:16
+			 * `me` argument is passed but is never used in the method.
+			 */
 			this.updateLivePreview(me);
 		}
 		
@@ -1172,6 +1218,11 @@ mxVertexHandler.prototype.resizeVertex = function(me)
  */
 mxVertexHandler.prototype.updateLivePreview = function(me)
 {
+	/**
+	 * 2021-02-21 15:29
+	 * This is called multiple times when resizing. `mxVertexHandler.prototype.redraw` is called on `mouseUp`
+	 */
+	console.log(`mxVertexHandler.prototype.updateLivePreview`)
 	// TODO: Apply child offset to children in live preview
 	var scale = this.graph.view.scale;
 	var tr = this.graph.view.translate;
@@ -1209,6 +1260,8 @@ mxVertexHandler.prototype.updateLivePreview = function(me)
 	}
 	
 	// Draws the live preview
+	console.log(`Before this.state.view.graph.cellRenderer.redraw. this.state:`)
+	console.log(this.state)
 	this.state.view.graph.cellRenderer.redraw(this.state, true);
 	
 	// Redraws connected edges TODO: Include child edges
@@ -1265,6 +1318,7 @@ mxVertexHandler.prototype.moveToFront = function()
  */
 mxVertexHandler.prototype.mouseUp = function(sender, me)
 {
+	console.log(`mxVertexHandler.prototype.mouseUp`)
 	if (this.index != null && this.state != null)
 	{
 		var point = new mxPoint(me.getGraphX(), me.getGraphY());
@@ -1640,6 +1694,11 @@ mxVertexHandler.prototype.union = function(bounds, dx, dy, index, gridEnabled, s
 {
 	gridEnabled = (gridEnabled != null) ? gridEnabled && this.graph.gridEnabled : this.graph.gridEnabled;
 	
+	/**
+	 * 2021-02-21 17:14
+	 * A setting where `this.singleSizer == true` makes only one sizer at bottom right instead of 8 sizers at each side
+	 * and corner. Test this in `touch.html`.
+	 */
 	if (this.singleSizer)
 	{
 		var x = bounds.x + bounds.width + dx;
@@ -1799,6 +1858,14 @@ mxVertexHandler.prototype.union = function(bounds, dx, dy, index, gridEnabled, s
  */
 mxVertexHandler.prototype.redraw = function(ignoreHandles)
 {
+	/**
+	 * 2021-02-21 15:28
+	 * When resizing, this is only called after `mxVertexHandler.prototype.mouseUp` before `mxGraphHandler.prototype.mouseUp`
+	 * 
+	 * `mxVertexHandler.prototype.updateLivePreview` is called multiple times instead.
+	 */
+	console.log(`mxVertexHandler.prototype.redraw`)
+	console.log(this)
 	this.selectionBounds = this.getSelectionBounds(this.state);
 	this.bounds = new mxRectangle(this.selectionBounds.x, this.selectionBounds.y,
 		this.selectionBounds.width, this.selectionBounds.height);

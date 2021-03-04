@@ -6,6 +6,7 @@
  */
 EditorUi = function(editor, container, lightbox)
 {
+	console.log(`EditorUi = function(editor, container, lightbox)`)
 	mxEventSource.call(this);
 	
 	this.destroyFunctions = [];
@@ -839,6 +840,7 @@ EditorUi = function(editor, container, lightbox)
 							mxUtils.getValue(graph.currentEdgeStyle, 'endFill', '1'));
 				}
 			}
+		// END OF this.addListener('styleChanged',
 		}));
 		
 		// Update font size and font family labels
@@ -3779,6 +3781,7 @@ EditorUi.prototype.createSidebarFooterContainer = function()
  */
 EditorUi.prototype.createUi = function()
 {
+	console.log(`EditorUi.prototype.createUi`);
 	// Creates menubar
 	this.menubar = (this.editor.chromeless) ? null : this.menus.createMenubar(this.createDiv('geMenubar'));
 	
@@ -4281,20 +4284,29 @@ EditorUi.prototype.saveFile = function(forceDialog)
 	}
 	else
 	{
-		var dlg = new FilenameDialog(this, this.editor.getOrCreateFilename(), mxResources.get('save'), mxUtils.bind(this, function(name)
-		{
-			this.save(name);
-		}), null, mxUtils.bind(this, function(name)
-		{
-			if (name != null && name.length > 0)
-			{
-				return true;
-			}
-			
-			mxUtils.confirm(mxResources.get('invalidName'));
-			
-			return false;
-		}));
+		var dlg = new FilenameDialog(
+			this,
+			this.editor.getOrCreateFilename(),
+			mxResources.get('save'),
+			mxUtils.bind(
+				this, function(name) {
+					this.save(name);
+				}
+			),
+			null,
+			mxUtils.bind(
+				this, function(name) {
+					if (name != null && name.length > 0)
+					{
+						return true;
+					}
+					
+					mxUtils.confirm(mxResources.get('invalidName'));
+					
+					return false;
+				}
+			)
+		);
 		this.showDialog(dlg.container, 300, 100, true, true);
 		dlg.init();
 	}
@@ -4313,6 +4325,8 @@ EditorUi.prototype.save = function(name)
 		}
 		
 		var xml = mxUtils.getXml(this.editor.getGraphXml());
+		
+		console.log(`EditorUi.prototype.save -- before try-catch`)
 		
 		try
 		{
@@ -4599,6 +4613,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	// Helper function to move cells with the cursor keys
 	function nudge(keyCode, stepSize, resize)
 	{
+		console.log(`function nudge(keyCode, stepSize, resize)`)
 		queue.push(function()
 		{
 			if (!graph.isSelectionEmpty() && graph.isEnabled())

@@ -1533,7 +1533,7 @@ Graph.prototype.defaultEdgeLength = 80;
 /**
  * Disables move of bends/segments without selecting.
  */
-Graph.prototype.edgeMode = false;
+Graph.prototype.edgeMode = true;
 
 /**
  * Allows all values in fit.
@@ -4053,6 +4053,7 @@ HoverIcons.prototype.tolerance = (mxClient.IS_TOUCH) ? 6 : 0;
  */
 HoverIcons.prototype.init = function()
 {
+	console.log(`HoverIcons.prototype.init`)
 	this.arrowUp = this.createArrow(this.triangleUp, mxResources.get('plusTooltip'));
 	this.arrowRight = this.createArrow(this.triangleRight, mxResources.get('plusTooltip'));
 	this.arrowDown = this.createArrow(this.triangleDown, mxResources.get('plusTooltip'));
@@ -4266,6 +4267,7 @@ HoverIcons.prototype.createArrow = function(img, tooltip)
 
 	mxEvent.addGestureListeners(arrow, mxUtils.bind(this, function(evt)
 	{
+		console.log(`HoverIcons.prototype.createArrow > mxEvent.addGestureListeners(arrow`)
 		if (this.currentState != null && !this.isResetEvent(evt))
 		{
 			this.mouseDownPoint = mxUtils.convertPoint(this.graph.container,
@@ -4395,12 +4397,14 @@ HoverIcons.prototype.isActive = function()
  */
 HoverIcons.prototype.drag = function(evt, x, y)
 {
+	console.log(`HoverIcons.prototype.drag`)
 	this.graph.popupMenuHandler.hideMenu();
 	this.graph.stopEditing(false);
 
 	// Checks if state was removed in call to stopEditing above
 	if (this.currentState != null)
 	{
+		console.log(`HoverIcons.prototype.drag > if (this.currentState != null)`)
 		this.graph.connectionHandler.start(this.currentState, x, y);
 		this.graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
 		this.graph.isMouseDown = true;
@@ -4410,6 +4414,7 @@ HoverIcons.prototype.drag = function(evt, x, y)
 		
 		if (handler != null)
 		{
+			console.log(`HoverIcons.prototype.drag > if (handler != null)`)
 			handler.setHandlesVisible(false);
 		}
 		
@@ -4419,6 +4424,7 @@ HoverIcons.prototype.drag = function(evt, x, y)
 		if (evt != null && mxEvent.isShiftDown(evt) && mxEvent.isControlDown(evt) && es != null &&
 			mxUtils.getValue(es.style, mxConstants.STYLE_EDGE, null) === 'orthogonalEdgeStyle')
 		{
+			console.log(`HoverIcons.prototype.drag > More stuff`)
 			var direction = this.getDirection();
 			es.cell.style = mxUtils.setStyle(es.cell.style, 'sourcePortConstraint', direction);
 			es.style['sourcePortConstraint'] = direction;
@@ -10881,6 +10887,8 @@ if (typeof mxVertexHandler != 'undefined')
 				this.hint = createHint();
 				this.state.view.graph.container.appendChild(this.hint);
 			}
+			
+			console.log(`Graph.js > mxEdgeHandler.prototype.updateHint`)
 	
 			var t = this.graph.view.translate;
 			var s = this.graph.view.scale;

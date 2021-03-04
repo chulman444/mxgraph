@@ -60,6 +60,7 @@
 		// Extends EditorUi to update I/O action states based on availability of backend
 		(function()
 		{
+			console.log(`(function() {...})`)
 			var editorUiInit = EditorUi.prototype.init;
 			
 			EditorUi.prototype.init = function()
@@ -99,6 +100,12 @@
 				themes[Graph.prototype.defaultThemeName] = xhr[1].getDocumentElement(); 
 				
 				// Main
+				/**
+				 * 2021-02-17 19:15
+				 * 
+				 * The grid is rendered after this line. `<script` and stuff above don't render the grid.
+				 */
+				 console.log(`new EditorUi(new Editor`)
 				new EditorUi(new Editor(urlParams['chrome'] == '0', themes));
 			}, function()
 			{

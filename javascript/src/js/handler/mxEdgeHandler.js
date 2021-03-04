@@ -1448,6 +1448,15 @@ mxEdgeHandler.prototype.mouseMove = function(sender, me)
 {
 	if (this.index != null && this.marker != null)
 	{
+		/**
+		 * 2021-03-04 00:02
+		 * Called through `mxSelectionCellsHandler`. Note that `mxVertexHandler` is called through it when
+		 * resizing.
+		 * 
+		 * When creating an arrow and moving it around, `mxConnectionHandler.prototype.mouseMove` is called
+		 * instead.
+		 */
+		console.log(`mxEdgeHandler.prototype.mouseMove > if (this.index != null && this.marker != null)`)
 		this.currentPoint = this.getPointForEvent(me);
 		this.error = null;
 		
@@ -2151,6 +2160,7 @@ mxEdgeHandler.prototype.redraw = function(ignoreHandles)
  */
 mxEdgeHandler.prototype.redrawHandles = function()
 {
+	console.log(`mxEdgeHandler.prototype.redrawHandles`)
 	var cell = this.state.cell;
 
 	// Updates the handle for the label position
@@ -2162,6 +2172,9 @@ mxEdgeHandler.prototype.redrawHandles = function()
 	// Shows or hides the label handle depending on the label
 	var lab = this.graph.getLabel(cell);
 	this.labelShape.visible = (lab != null && lab.length > 0 && this.graph.isLabelMovable(cell));
+	
+	console.log(`this.bends: `, this.bends)
+	console.log(`this.bends.length: `, this.bends.length)
 	
 	if (this.bends != null && this.bends.length > 0)
 	{
@@ -2307,6 +2320,7 @@ mxEdgeHandler.prototype.setHandlesVisible = function(visible)
  */
 mxEdgeHandler.prototype.redrawInnerBends = function(p0, pe)
 {
+	console.log(`mxEdgeHandler.prototype.redrawInnerBends`)
 	for (var i = 1; i < this.bends.length - 1; i++)
 	{
 		if (this.bends[i] != null)

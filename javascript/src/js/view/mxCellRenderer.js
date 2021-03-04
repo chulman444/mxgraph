@@ -862,6 +862,7 @@ mxCellRenderer.prototype.installListeners = function(state)
 	mxEvent.addGestureListeners(state.shape.node,
 		mxUtils.bind(this, function(evt)
 		{
+			console.log(`mxCellRenderer.prototype.installListeners > mxEvent.addGestureListeners > start`)
 			if (this.isShapeEvent(state, evt))
 			{
 				graph.fireMouseEvent(mxEvent.MOUSE_DOWN, new mxMouseEvent(evt, state));
@@ -869,6 +870,7 @@ mxCellRenderer.prototype.installListeners = function(state)
 		}),
 		mxUtils.bind(this, function(evt)
 		{
+			console.log(`mxCellRenderer.prototype.installListeners > mxEvent.addGestureListeners > move`)
 			if (this.isShapeEvent(state, evt))
 			{
 				graph.fireMouseEvent(mxEvent.MOUSE_MOVE, new mxMouseEvent(evt, getState(evt)));

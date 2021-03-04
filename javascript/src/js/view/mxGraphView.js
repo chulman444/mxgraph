@@ -770,6 +770,7 @@ mxGraphView.prototype.validateBackgroundImage = function()
  */
 mxGraphView.prototype.validateBackgroundPage = function()
 {
+	console.log(`mxGraphView.prototype.validateBackgroundPage`)
 	if (this.graph.pageVisible)
 	{
 		var bounds = this.getBackgroundPageBounds();
@@ -2589,6 +2590,7 @@ mxGraphView.prototype.installListeners = function()
 		// Adds basic listeners for graph event dispatching
 		mxEvent.addGestureListeners(container, mxUtils.bind(this, function(evt)
 		{
+			console.log(`mxGraphView.prototype.installListeners > mxEvent.addGestureListeners > start`)
 			// Condition to avoid scrollbar events starting a rubberband selection
 			if (this.isContainerEvent(evt) && ((!mxClient.IS_IE && !mxClient.IS_IE11 && !mxClient.IS_GC &&
 				!mxClient.IS_OP && !mxClient.IS_SF) || !this.isScrollEvent(evt)))
@@ -2599,6 +2601,7 @@ mxGraphView.prototype.installListeners = function()
 		}),
 		mxUtils.bind(this, function(evt)
 		{
+			// console.log(`mxGraphView.prototype.installListeners > mxEvent.addGestureListeners > move`)
 			if (this.isContainerEvent(evt) && (pointerId == null || evt.pointerId == pointerId))
 			{
 				graph.fireMouseEvent(mxEvent.MOUSE_MOVE, new mxMouseEvent(evt));

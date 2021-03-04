@@ -464,6 +464,7 @@ mxConnectionHandler.prototype.setCreateTarget = function(value)
  */
 mxConnectionHandler.prototype.createShape = function()
 {
+	console.log(`mxConnectionHandler.prototype.createShape`)
 	// Creates the edge preview
 	var shape = (this.livePreview && this.edgeState != null) ?
 		this.graph.cellRenderer.createShape(this.edgeState) :
@@ -952,6 +953,14 @@ mxConnectionHandler.prototype.mouseDown = function(sender, me)
 	if (this.isEnabled() && this.graph.isEnabled() && !me.isConsumed() &&
 		!this.isConnecting() && this.isStartEvent(me))
 	{
+		/**
+		 * 2021-03-04 00:19
+		 * Only called when creating an arrow from 'x' marks on the edge of the shape, and not when using one of
+		 * the thick squares on each side.
+		 * 
+		 * AND mousedown doesn't seem to create an arrow
+		 */
+		console.log(`mxConnectionHandler.prototype.mouseDown -- this.mouseDownCounter: ${this.mouseDownCounter}`)
 		if (this.constraintHandler.currentConstraint != null &&
 			this.constraintHandler.currentFocus != null &&
 			this.constraintHandler.currentPoint != null)
@@ -973,6 +982,8 @@ mxConnectionHandler.prototype.mouseDown = function(sender, me)
 		{
 			this.waypoints = null;
 			this.shape = this.createShape();
+			console.log(`mxConnectionHandler.prototype.mouseDown > if (this.waypointsEnabled && this.shape == null) > shape:`)
+			console.log(this.shape)
 			
 			if (this.edgeState != null)
 			{
@@ -1241,6 +1252,20 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
 {
 	if (!me.isConsumed() && (this.ignoreMouseDown || this.first != null || !this.graph.isMouseDown))
 	{
+		/**
+		 * 2021-03-03 23:59
+		 * 
+		 * Called when moving the mouse for an arrow that is being created.
+		 * 
+		 * NOT Called through `mxSelectionCellsHandler` unlike when moving the mouse while
+		 * updating the arrow.
+		 * 
+		 * 2021-03-04 21:31
+		 * 
+		 * Confirming. This is called when creating a new arrow through the 'x' marks or
+		 * one of the four thick arrows, and not when modifying an already created arrow.
+		 */
+		// console.log(`mxConnectionHandler.prototype.mouseMove`)
 		// Handles special case when handler is disabled during highlight
 		if (!this.isEnabled() && this.currentState != null)
 		{
@@ -1405,6 +1430,9 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
 				if (dx > this.graph.tolerance || dy > this.graph.tolerance)
 				{
 					this.shape = this.createShape();
+					
+					console.log(`mxConnectionHandler.prototype.mouseMove > if (dx > this.graph.tolerance || dy > this.graph.tolerance) > shape:`)
+					console.log(this.shape)
 
 					if (this.edgeState != null)
 					{
@@ -1826,6 +1854,8 @@ mxConnectionHandler.prototype.reset = function()
 mxConnectionHandler.prototype.drawPreview = function()
 {
 	this.updatePreview(this.error == null);
+	console.log(`mxConnectionHandler.prototype.drawPreview`)
+	console.log(this.shape)
 	this.shape.redraw();
 };
 

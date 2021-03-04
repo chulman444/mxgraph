@@ -282,6 +282,11 @@ mxSelectionCellsHandler.prototype.mouseDown = function(sender, me)
 	{
 		var args = [sender, me];
 
+		/**
+		 * 2021-02-23 13:58 
+		 * mxVertexHandler is the only handler in `this.handlers`?
+		 */
+		// console.log(this.handlers)
 		this.handlers.visit(function(key, handler)
 		{
 			handler.mouseDown.apply(handler, args);
@@ -300,8 +305,13 @@ mxSelectionCellsHandler.prototype.mouseMove = function(sender, me)
 	{
 		var args = [sender, me];
 
+		/**
+		 * 2021-02-23 13:58 
+		 * mxVertexHandler is the only handler in `this.handlers`?
+		 */
 		this.handlers.visit(function(key, handler)
 		{
+			console.log(`mxSelectionCellsHandler.prototype.mouseMove > this.handlers.visit > handler constructor:`, handler.constructor.name)
 			handler.mouseMove.apply(handler, args);
 		});
 	}

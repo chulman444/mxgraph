@@ -383,6 +383,7 @@ mxShape.prototype.redraw = function()
 	if (this.visible && this.checkBounds())
 	{
 		this.node.style.visibility = 'visible';
+		// console.log(`this.clear();`)
 		this.clear();
 		
 		if (this.node.nodeName == 'DIV' && (this.isHtmlAllowed() || !mxClient.IS_VML))

@@ -6,6 +6,7 @@
  */
 Editor = function(chromeless, themes, model, graph, editable)
 {
+	console.log(`Editor = function(chromeless, themes, model, graph, editable)`)
 	mxEventSource.call(this);
 	this.chromeless = (chromeless != null) ? chromeless : this.chromeless;
 	this.initStencilRegistry();
@@ -2303,6 +2304,7 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 	// Uses HTML for background pages (to support grid background image)
 	mxGraphView.prototype.validateBackgroundPage = function()
 	{
+		console.log(`Static overrides mxGraphView.prototype.validateBackgroundPage`);
 		var graph = this.graph;
 		
 		if (graph.container != null && !graph.transparentBackground)
