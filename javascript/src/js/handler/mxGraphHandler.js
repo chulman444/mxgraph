@@ -1153,9 +1153,9 @@ mxGraphHandler.prototype.mouseMove = function(sender, me)
 		// Cancels the bubbling of events to the container so
 		// that the droptarget is not reset due to an mouseMove
 		// fired on the container with no associated state.
-		console.log(`Before mxEvent.consume(me.getEvent());`, me.evt.cancelBubble)
+		// console.log(`Before mxEvent.consume(me.getEvent());`, me.evt.cancelBubble)
 		mxEvent.consume(me.getEvent());
-		console.log(`After mxEvent.consume(me.getEvent());`, me.evt.cancelBubble)
+		// console.log(`After mxEvent.consume(me.getEvent());`, me.evt.cancelBubble)
 	}
 	else if ((this.isMoveEnabled() || this.isCloneEnabled()) && this.updateCursor && !me.isConsumed() &&
 			(me.getState() != null || me.sourceState != null) && !graph.isMouseDown)

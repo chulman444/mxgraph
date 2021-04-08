@@ -140,16 +140,16 @@ EditorUi = function(editor, container, lightbox)
 		// Contains the main graph instance inside the given panel
 		graph.init(this.diagramContainer);
 	
-	    // Improves line wrapping for in-place editor
-	    if (mxClient.IS_SVG && graph.view.getDrawPane() != null)
-	    {
-	        var root = graph.view.getDrawPane().ownerSVGElement;
-	        
-	        if (root != null)
-	        {
-	            root.style.position = 'absolute';
-	        }
-	    }
+		// Improves line wrapping for in-place editor
+		if (mxClient.IS_SVG && graph.view.getDrawPane() != null)
+		{
+				var root = graph.view.getDrawPane().ownerSVGElement;
+				
+				if (root != null)
+				{
+						root.style.position = 'absolute';
+				}
+		}
 	    
 		// Creates hover icons
 		this.hoverIcons = this.createHoverIcons();
@@ -374,9 +374,9 @@ EditorUi = function(editor, container, lightbox)
 			}
 		};
 		
-	    // Enables scrollbars and sets cursor style for the container
+    // Enables scrollbars and sets cursor style for the container
 		graph.container.setAttribute('tabindex', '0');
-	   	graph.container.style.cursor = 'default';
+   	graph.container.style.cursor = 'default';
 
 		// Workaround for page scroll if embedded via iframe
 		if (window.self === window.top && graph.container.parentNode != null)
@@ -391,22 +391,22 @@ EditorUi = function(editor, container, lightbox)
 			}
 		}
 	
-	   	// Keeps graph container focused on mouse down
-	   	var graphFireMouseEvent = graph.fireMouseEvent;
-	   	graph.fireMouseEvent = function(evtName, me, sender)
-	   	{
-	   		if (evtName == mxEvent.MOUSE_DOWN)
-	   		{
-	   			this.container.focus();
-	   		}
-	   		
-	   		graphFireMouseEvent.apply(this, arguments);
-	   	};
+		// Keeps graph container focused on mouse down
+		var graphFireMouseEvent = graph.fireMouseEvent;
+		graph.fireMouseEvent = function(evtName, me, sender)
+		{
+			if (evtName == mxEvent.MOUSE_DOWN)
+			{
+				this.container.focus();
+			}
+			
+			graphFireMouseEvent.apply(this, arguments);
+		};
 	
-	   	// Configures automatic expand on mouseover
+	  // Configures automatic expand on mouseover
 		graph.popupMenuHandler.autoExpand = true;
 	
-	    // Installs context menu
+	   // Installs context menu
 		if (this.menus != null)
 		{
 			graph.popupMenuHandler.factoryMethod = mxUtils.bind(this, function(menu, cell, evt)

@@ -338,282 +338,282 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		this.addMouseListener(
 		{
 			mouseDown: function(sender, me) {},
-		    mouseMove: mxUtils.bind(this, function(sender, me)
-		    {
-		    	// Checks if any other handler is active
-		    	var handlerMap = this.selectionCellsHandler.handlers.map;
-		    	
-		    	for (var key in handlerMap)
-		    	{
-		    		if (handlerMap[key].index != null)
-		    		{
-		    			return;
-		    		}
-		    	}
-		    	
-		    	if (this.isEnabled() && !this.panningHandler.isActive() && !mxEvent.isAltDown(me.getEvent()))
-		    	{
-		    		var tol = this.tolerance;
-	
-			    	if (start.point != null && start.state != null && start.event != null)
-			    	{
-			    		var state = start.state;
-			    		
-			    		if (Math.abs(start.point.x - me.getGraphX()) > tol ||
-			    			Math.abs(start.point.y - me.getGraphY()) > tol)
-			    		{
-			    			var handler = this.selectionCellsHandler.getHandler(state.cell);
-			    			
-			    			if (handler == null && this.model.isEdge(state.cell))
-			    			{
-			    				handler = this.createHandler(state);
-			    			}
-			    			
-			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
-			    			{
-			    				var handle = handler.getHandleForEvent(start.event);
-			    				var edgeStyle = this.view.getEdgeStyle(state);
-			    				var entity = edgeStyle == mxEdgeStyle.EntityRelation;
-			    				
-			    				// Handles special case where label was clicked on unselected edge in which
-			    				// case the label will be moved regardless of the handle that is returned
-			    				if (!start.selected && start.handle == mxEvent.LABEL_HANDLE)
-			    				{
-			    					handle = start.handle;
-			    				}
-			    				
-	    						if (!entity || handle == 0 || handle == handler.bends.length - 1 || handle == mxEvent.LABEL_HANDLE)
-	    						{
-				    				// Source or target handle or connected for direct handle access or orthogonal line
-				    				// with just two points where the central handle is moved regardless of mouse position
-				    				if (handle == mxEvent.LABEL_HANDLE || handle == 0 || state.visibleSourceState != null ||
-				    					handle == handler.bends.length - 1 || state.visibleTargetState != null)
-				    				{
-				    					if (!entity && handle != mxEvent.LABEL_HANDLE)
-				    					{
-					    					var pts = state.absolutePoints;
-				    						
-					    					// Default case where handles are at corner points handles
-					    					// drag of corner as drag of existing point
-					    					if (pts != null && ((edgeStyle == null && handle == null) ||
-					    						edgeStyle == mxEdgeStyle.OrthConnector))
-					    					{
-					    						// Does not use handles if they were not initially visible
-					    						handle = start.handle;
+			mouseMove: mxUtils.bind(this, function(sender, me)
+			{
+				// Checks if any other handler is active
+				var handlerMap = this.selectionCellsHandler.handlers.map;
+				
+				for (var key in handlerMap)
+				{
+					if (handlerMap[key].index != null)
+					{
+						return;
+					}
+				}
+				
+				if (this.isEnabled() && !this.panningHandler.isActive() && !mxEvent.isAltDown(me.getEvent()))
+				{
+					var tol = this.tolerance;
 
-					    						if (handle == null)
-					    						{
-							    					var box = new mxRectangle(start.point.x, start.point.y);
-							    					box.grow(mxEdgeHandler.prototype.handleImage.width / 2);
-							    					
-					    							if (mxUtils.contains(box, pts[0].x, pts[0].y))
-					    							{
-						    							// Moves source terminal handle
-					    								handle = 0;
-					    							}
-					    							else if (mxUtils.contains(box, pts[pts.length - 1].x, pts[pts.length - 1].y))
-					    							{
-					    								// Moves target terminal handle
-					    								handle = handler.bends.length - 1;
-					    							}
-					    							else
-					    							{
-							    						// Checks if edge has no bends
-							    						var nobends = edgeStyle != null && (pts.length == 2 || (pts.length == 3 &&
-						    								((Math.round(pts[0].x - pts[1].x) == 0 && Math.round(pts[1].x - pts[2].x) == 0) ||
-						    								(Math.round(pts[0].y - pts[1].y) == 0 && Math.round(pts[1].y - pts[2].y) == 0))));
-							    						
-						    							if (nobends)
-								    					{
-									    					// Moves central handle for straight orthogonal edges
-								    						handle = 2;
-								    					}
-								    					else
-									    				{
-										    				// Finds and moves vertical or horizontal segment
-									    					handle = mxUtils.findNearestSegment(state, start.point.x, start.point.y);
-									    					
-									    					// Converts segment to virtual handle index
-									    					if (edgeStyle == null)
-									    					{
-									    						handle = mxEvent.VIRTUAL_HANDLE - handle;
-									    					}
-									    					// Maps segment to handle
-									    					else
-									    					{
-									    						handle += 1;
-									    					}
-									    				}
-					    							}
-					    						}
-					    					}
-							    			
-						    				// Creates a new waypoint and starts moving it
-						    				if (handle == null)
-						    				{
-						    					handle = mxEvent.VIRTUAL_HANDLE;
-						    				}
-				    					}
-				    					
-				    					handler.start(me.getGraphX(), me.getGraphX(), handle);
-				    					me.consume();
-	
-				    					// Removes preview rectangle in graph handler
-				    					this.graphHandler.reset();
-				    				}
-	    						}
-	    						else if (entity && (state.visibleSourceState != null || state.visibleTargetState != null))
-	    						{
-	    							// Disables moves on entity to make it consistent
-			    					this.graphHandler.reset();
-	    							me.consume();
-	    						}
-			    			}
-			    			
-			    			if (handler != null)
-			    			{
-				    			// Lazy selection for edges inside groups
-			    				if (this.selectionCellsHandler.isHandlerActive(handler))
-			    				{
-					    			if (!this.isCellSelected(state.cell))
-					    			{
-					    				this.selectionCellsHandler.handlers.put(state.cell, handler);
-					    				this.selectCellForEvent(state.cell, me.getEvent());
-					    			}
-			    				}
-				    			else if (!this.isCellSelected(state.cell))
-				    			{
-				    				// Destroy temporary handler
-				    				handler.destroy();
-				    			}
-			    			}
-			    
-			    			// Reset start state
-		    				start.selected = false;
-		    				start.handle = null;
-	    					start.state = null;
-		    				start.event = null;
-		    				start.point = null;
-			    		}
-			    	}
-			    	else
-			    	{
-			    		// Updates cursor for unselected edges under the mouse
-				    	var state = me.getState();
-				    	
-				    	if (state != null)
-				    	{
-				    		var cursor = null;
-				    		
-				    		// Checks if state was removed in call to stopEditing above
-				    		if (this.model.isEdge(state.cell))
-				    		{
-				    			var box = new mxRectangle(me.getGraphX(), me.getGraphY());
-		    					box.grow(mxEdgeHandler.prototype.handleImage.width / 2);
-			    				var pts = state.absolutePoints;
-			    				
-			    				if (pts != null)
-			    				{
-			    					if (state.text != null && state.text.boundingBox != null &&
-			    						mxUtils.contains(state.text.boundingBox, me.getGraphX(), me.getGraphY()))
-			    					{
-			    						cursor = 'move';
-			    					}
-			    					else if (mxUtils.contains(box, pts[0].x, pts[0].y) ||
-			    						mxUtils.contains(box, pts[pts.length - 1].x, pts[pts.length - 1].y))
-			    					{
-			    						cursor = 'pointer';
-			    					}
-			    					else if (state.visibleSourceState != null || state.visibleTargetState != null)
-			    					{
-		    							// Moving is not allowed for entity relation but still indicate hover state
-			    						var tmp = this.view.getEdgeStyle(state);
-			    						cursor = 'crosshair';
-			    						
-			    						if (tmp != mxEdgeStyle.EntityRelation && this.isOrthogonal(state))
-						    			{
-						    				var idx = mxUtils.findNearestSegment(state, me.getGraphX(), me.getGraphY());
-						    				
-						    				if (idx < pts.length - 1 && idx >= 0)
-						    				{
-					    						cursor = (Math.round(pts[idx].x - pts[idx + 1].x) == 0) ?
-					    							'col-resize' : 'row-resize';
-						    				}
-						    			}
-			    					}
-			    				}
-				    		}
-				    		else if (!mxEvent.isControlDown(me.getEvent()))
-				    		{
-				    			var box = new mxRectangle(me.getGraphX() - 1, me.getGraphY() - 1);
-			    				box.grow(mxShape.prototype.svgStrokeTolerance / 2);
-	
-					    		if (this.isTableCell(state.cell))
-					    		{
-				    				var row = this.model.getParent(state.cell);
-			    					var table = this.model.getParent(row);
-			    					
-			    					if (!this.isCellSelected(table))
-			    					{
-				    					if ((mxUtils.intersects(box, new mxRectangle(state.x - 2, state.y, 2, state.height)) &&
-						    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box,
-						    				new mxRectangle(state.x + state.width - 2, state.y, 2, state.height)))
-				    					{
-						    				cursor ='col-resize';
-				    					}
-				    					else if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 2, state.width, 3)) &&
-					    					this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box,
-					    					new mxRectangle(state.x, state.y + state.height - 2, state.width, 3)))
-				    					{
-						    				cursor ='row-resize';
-				    					}
-			    					}
-					    		}
-					    		
-					    		// Hover for swimlane start sizes inside tables
-					    		var current = state;
-					    		
-					    		while (cursor == null && current != null && (this.isTableCell(current.cell) ||
-					    			this.isTableRow(current.cell) || this.isTable(current.cell)))
-					    		{
-						    		if (this.isSwimlane(current.cell))
-						    		{
-						    			var offset = this.getActualStartSize(current.cell);
-						    			var s = this.view.scale;
-						    			
-			    						if ((offset.x > 0 || offset.width > 0) && mxUtils.intersects(box, new mxRectangle(
-			    							current.x + (offset.x - offset.width - 1) * s + ((offset.x == 0) ? current.width * s : 0),
-			    							current.y, 1, current.height)))
-			    						{
-				    						cursor ='col-resize';
-			    						}
-			    						else if ((offset.y > 0 || offset.height > 0) && mxUtils.intersects(box, new mxRectangle(
-			    							current.x, current.y + (offset.y - offset.height - 1) * s + ((offset.y == 0) ? current.height : 0),
-			    							current.width, 1)))
-			    						{
-				    						cursor ='row-resize';
-			    						}
-						    		}
-						    		
-						    		current = this.view.getState(this.model.getParent(current.cell));
-					    		}
-				    		}
-				    		
-		    				if (cursor != null)
-		    				{
-		    					state.setCursor(cursor);
-		    				}
-				    	}
-			    	}
-		    	}
-		    }),
-		    mouseUp: mxUtils.bind(this, function(sender, me)
-		    {
+					if (start.point != null && start.state != null && start.event != null)
+					{
+						var state = start.state;
+						
+						if (Math.abs(start.point.x - me.getGraphX()) > tol ||
+							Math.abs(start.point.y - me.getGraphY()) > tol)
+						{
+							var handler = this.selectionCellsHandler.getHandler(state.cell);
+							
+							if (handler == null && this.model.isEdge(state.cell))
+							{
+								handler = this.createHandler(state);
+							}
+							
+							if (handler != null && handler.bends != null && handler.bends.length > 0)
+							{
+								var handle = handler.getHandleForEvent(start.event);
+								var edgeStyle = this.view.getEdgeStyle(state);
+								var entity = edgeStyle == mxEdgeStyle.EntityRelation;
+								
+								// Handles special case where label was clicked on unselected edge in which
+								// case the label will be moved regardless of the handle that is returned
+								if (!start.selected && start.handle == mxEvent.LABEL_HANDLE)
+								{
+									handle = start.handle;
+								}
+								
+								if (!entity || handle == 0 || handle == handler.bends.length - 1 || handle == mxEvent.LABEL_HANDLE)
+								{
+									// Source or target handle or connected for direct handle access or orthogonal line
+									// with just two points where the central handle is moved regardless of mouse position
+									if (handle == mxEvent.LABEL_HANDLE || handle == 0 || state.visibleSourceState != null ||
+										handle == handler.bends.length - 1 || state.visibleTargetState != null)
+									{
+										if (!entity && handle != mxEvent.LABEL_HANDLE)
+										{
+											var pts = state.absolutePoints;
+											
+											// Default case where handles are at corner points handles
+											// drag of corner as drag of existing point
+											if (pts != null && ((edgeStyle == null && handle == null) ||
+												edgeStyle == mxEdgeStyle.OrthConnector))
+											{
+												// Does not use handles if they were not initially visible
+												handle = start.handle;
+
+												if (handle == null)
+												{
+													var box = new mxRectangle(start.point.x, start.point.y);
+													box.grow(mxEdgeHandler.prototype.handleImage.width / 2);
+													
+													if (mxUtils.contains(box, pts[0].x, pts[0].y))
+													{
+														// Moves source terminal handle
+														handle = 0;
+													}
+													else if (mxUtils.contains(box, pts[pts.length - 1].x, pts[pts.length - 1].y))
+													{
+														// Moves target terminal handle
+														handle = handler.bends.length - 1;
+													}
+													else
+													{
+														// Checks if edge has no bends
+														var nobends = edgeStyle != null && (pts.length == 2 || (pts.length == 3 &&
+															((Math.round(pts[0].x - pts[1].x) == 0 && Math.round(pts[1].x - pts[2].x) == 0) ||
+															(Math.round(pts[0].y - pts[1].y) == 0 && Math.round(pts[1].y - pts[2].y) == 0))));
+														
+														if (nobends)
+														{
+															// Moves central handle for straight orthogonal edges
+															handle = 2;
+														}
+														else
+														{
+															// Finds and moves vertical or horizontal segment
+															handle = mxUtils.findNearestSegment(state, start.point.x, start.point.y);
+															
+															// Converts segment to virtual handle index
+															if (edgeStyle == null)
+															{
+																handle = mxEvent.VIRTUAL_HANDLE - handle;
+															}
+															// Maps segment to handle
+															else
+															{
+																handle += 1;
+															}
+														}
+													}
+												}
+											}
+											
+											// Creates a new waypoint and starts moving it
+											if (handle == null)
+											{
+												handle = mxEvent.VIRTUAL_HANDLE;
+											}
+										}
+										
+										handler.start(me.getGraphX(), me.getGraphX(), handle);
+										me.consume();
+
+										// Removes preview rectangle in graph handler
+										this.graphHandler.reset();
+									}
+								}
+								else if (entity && (state.visibleSourceState != null || state.visibleTargetState != null))
+								{
+									// Disables moves on entity to make it consistent
+									this.graphHandler.reset();
+									me.consume();
+								}
+							}
+							
+							if (handler != null)
+							{
+								// Lazy selection for edges inside groups
+								if (this.selectionCellsHandler.isHandlerActive(handler))
+								{
+									if (!this.isCellSelected(state.cell))
+									{
+										this.selectionCellsHandler.handlers.put(state.cell, handler);
+										this.selectCellForEvent(state.cell, me.getEvent());
+									}
+								}
+								else if (!this.isCellSelected(state.cell))
+								{
+									// Destroy temporary handler
+									handler.destroy();
+								}
+							}
+				
+							// Reset start state
+							start.selected = false;
+							start.handle = null;
+							start.state = null;
+							start.event = null;
+							start.point = null;
+						}
+					}
+					else
+					{
+						// Updates cursor for unselected edges under the mouse
+						var state = me.getState();
+						
+						if (state != null)
+						{
+							var cursor = null;
+							
+							// Checks if state was removed in call to stopEditing above
+							if (this.model.isEdge(state.cell))
+							{
+								var box = new mxRectangle(me.getGraphX(), me.getGraphY());
+								box.grow(mxEdgeHandler.prototype.handleImage.width / 2);
+								var pts = state.absolutePoints;
+								
+								if (pts != null)
+								{
+									if (state.text != null && state.text.boundingBox != null &&
+										mxUtils.contains(state.text.boundingBox, me.getGraphX(), me.getGraphY()))
+									{
+										cursor = 'move';
+									}
+									else if (mxUtils.contains(box, pts[0].x, pts[0].y) ||
+										mxUtils.contains(box, pts[pts.length - 1].x, pts[pts.length - 1].y))
+									{
+										cursor = 'pointer';
+									}
+									else if (state.visibleSourceState != null || state.visibleTargetState != null)
+									{
+										// Moving is not allowed for entity relation but still indicate hover state
+										var tmp = this.view.getEdgeStyle(state);
+										cursor = 'crosshair';
+										
+										if (tmp != mxEdgeStyle.EntityRelation && this.isOrthogonal(state))
+										{
+											var idx = mxUtils.findNearestSegment(state, me.getGraphX(), me.getGraphY());
+											
+											if (idx < pts.length - 1 && idx >= 0)
+											{
+												cursor = (Math.round(pts[idx].x - pts[idx + 1].x) == 0) ?
+													'col-resize' : 'row-resize';
+											}
+										}
+									}
+								}
+							}
+							else if (!mxEvent.isControlDown(me.getEvent()))
+							{
+								var box = new mxRectangle(me.getGraphX() - 1, me.getGraphY() - 1);
+								box.grow(mxShape.prototype.svgStrokeTolerance / 2);
+
+								if (this.isTableCell(state.cell))
+								{
+									var row = this.model.getParent(state.cell);
+									var table = this.model.getParent(row);
+									
+									if (!this.isCellSelected(table))
+									{
+										if ((mxUtils.intersects(box, new mxRectangle(state.x - 2, state.y, 2, state.height)) &&
+											this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box,
+											new mxRectangle(state.x + state.width - 2, state.y, 2, state.height)))
+										{
+											cursor ='col-resize';
+										}
+										else if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 2, state.width, 3)) &&
+											this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box,
+											new mxRectangle(state.x, state.y + state.height - 2, state.width, 3)))
+										{
+											cursor ='row-resize';
+										}
+									}
+								}
+								
+								// Hover for swimlane start sizes inside tables
+								var current = state;
+								
+								while (cursor == null && current != null && (this.isTableCell(current.cell) ||
+									this.isTableRow(current.cell) || this.isTable(current.cell)))
+								{
+									if (this.isSwimlane(current.cell))
+									{
+										var offset = this.getActualStartSize(current.cell);
+										var s = this.view.scale;
+										
+										if ((offset.x > 0 || offset.width > 0) && mxUtils.intersects(box, new mxRectangle(
+											current.x + (offset.x - offset.width - 1) * s + ((offset.x == 0) ? current.width * s : 0),
+											current.y, 1, current.height)))
+										{
+											cursor ='col-resize';
+										}
+										else if ((offset.y > 0 || offset.height > 0) && mxUtils.intersects(box, new mxRectangle(
+											current.x, current.y + (offset.y - offset.height - 1) * s + ((offset.y == 0) ? current.height : 0),
+											current.width, 1)))
+										{
+											cursor ='row-resize';
+										}
+									}
+									
+									current = this.view.getState(this.model.getParent(current.cell));
+								}
+							}
+							
+							if (cursor != null)
+							{
+								state.setCursor(cursor);
+							}
+						}
+					}
+				}
+			}),
+			mouseUp: mxUtils.bind(this, function(sender, me)
+			{
 				start.state = null;
 				start.event = null;
 				start.point = null;
 				start.handle = null;
-		    })
+			})
 		});
 	}
 	
@@ -6210,6 +6210,16 @@ if (typeof mxVertexHandler != 'undefined')
 		mxConnectionHandler.prototype.livePreview = true;
 		mxConnectionHandler.prototype.cursor = 'crosshair';
 		
+		/**
+		 * 2021-03-05 23:49
+		 * This overrides `mxConnectionHandler.prototype.createEdgeState` ... obviously whose body returns `null`.
+		 * Interested in this method because `this.shape.points = this.edgeState.absolutePoints;` in
+		 * `mxConnectionHandler`
+		 * 
+		 * 2021-03-06 00:29
+		 * `new mxCellState` assigns `absolutePoints` but it's just `new mxPoint();`. No other assignments. And
+		 * thankfully the code doesn't use any points out of nowhere.
+		 */
 		// Uses current edge style for connect preview
 		mxConnectionHandler.prototype.createEdgeState = function(me)
 		{

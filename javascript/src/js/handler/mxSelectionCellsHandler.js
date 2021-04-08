@@ -311,7 +311,7 @@ mxSelectionCellsHandler.prototype.mouseMove = function(sender, me)
 		 */
 		this.handlers.visit(function(key, handler)
 		{
-			console.log(`mxSelectionCellsHandler.prototype.mouseMove > this.handlers.visit > handler constructor:`, handler.constructor.name)
+			// console.log(`mxSelectionCellsHandler.prototype.mouseMove > this.handlers.visit > handler constructor:`, handler.constructor.name)
 			handler.mouseMove.apply(handler, args);
 		});
 	}

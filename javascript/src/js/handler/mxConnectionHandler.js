@@ -466,6 +466,10 @@ mxConnectionHandler.prototype.createShape = function()
 {
 	console.log(`mxConnectionHandler.prototype.createShape`)
 	// Creates the edge preview
+	/**
+	 * 2021-03-05 23:15
+	 * Commented in `2021-03-04 22:55` note that `this.graph.cellRenderer.createShape` is used.
+	 */
 	var shape = (this.livePreview && this.edgeState != null) ?
 		this.graph.cellRenderer.createShape(this.edgeState) :
 		new mxPolyline([], mxConstants.INVALID_COLOR);
@@ -475,6 +479,9 @@ mxConnectionHandler.prototype.createShape = function()
 	shape.pointerEvents = false;
 	shape.isDashed = true;
 	shape.init(this.graph.getView().getOverlayPane());
+	/**
+	 * 
+	 */
 	mxEvent.redirectMouseEvents(shape.node, this.graph, null);
 
 	return shape;
@@ -660,6 +667,13 @@ mxConnectionHandler.prototype.start = function(state, x, y, edgeState)
 {
 	this.previous = state;
 	this.first = new mxPoint(x, y);
+	/**
+	 * 2021-03-05 23:37
+	 * Called when creating an arrow using one of the thick arrows.
+	 * 
+	 * This is called from `Graph.js > HoverIcons.prototype.drag` with `this.graph.connectionHandler.start(this.currentState, x, y);`
+	 */
+	console.log(`mxConnectionHandler.prototype.start`)
 	this.edgeState = (edgeState != null) ? edgeState : this.createEdgeState(null);
 	
 	// Marks the source state
@@ -975,15 +989,30 @@ mxConnectionHandler.prototype.mouseDown = function(sender, me)
 			this.first = new mxPoint(me.getGraphX(), me.getGraphY());
 		}
 	
+		/**
+		 * 2021-03-05 19:37 
+		 * 
+		 * Again, this is called only when `mouseDown` on 'x' marks on the side of the shape
+		 * 
+		 * 2021-03-05 23:04
+		 * When using `'x'` mark to create the arrow, and `this.edgeState = this.createEdgeState(me);` is commented,
+		 * it creates a straight red line instead of an arrow that uses the currently selected 'waypoints' option
+		 * where 'orthogonol' seems to be default.
+		 * 
+		 * 2021-03-06 14:19
+		 * 
+		 * `this.edgeState.absolutePoints` is null ... so where is this filled before `mouseMove`?
+		 */
+		console.log(`mxConnectionHandler.prototype.mouseDown > before this.edgeState assignement`)
+		console.log(this.edgeState == null ? null : this.edgeState.absolutePoints)
 		this.edgeState = this.createEdgeState(me);
+		console.log(this.edgeState == null ? null : this.edgeState.absolutePoints)
 		this.mouseDownCounter = 1;
 		
 		if (this.waypointsEnabled && this.shape == null)
 		{
 			this.waypoints = null;
 			this.shape = this.createShape();
-			console.log(`mxConnectionHandler.prototype.mouseDown > if (this.waypointsEnabled && this.shape == null) > shape:`)
-			console.log(this.shape)
 			
 			if (this.edgeState != null)
 			{
@@ -998,6 +1027,12 @@ mxConnectionHandler.prototype.mouseDown = function(sender, me)
 			this.edgeState.cell.geometry.setTerminalPoint(pt, true);
 		}
 		
+		/**
+		 * 2021-03-06 14:28
+		 * 
+		 * No listeneres ... `this.fireEvent` is fired from `javascript/src/js/util/mxEventSource.js`
+		 * `fireEvent` method wtf.
+		 */
 		this.fireEvent(new mxEventObject(mxEvent.START, 'state', this.previous));
 
 		me.consume();
@@ -1350,6 +1385,26 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
 			// Uses edge state to compute the terminal points
 			if (this.edgeState != null)
 			{
+				/**
+				 * 2021-03-06 14:15
+				 * `this.edgeState.absolutePoints` already has elements before calling `this.updateEdgeState`
+				 * 
+				 * 2021-03-06 14:39
+				 * `this.edgeState.absolutePoints` have values after this `this.updateEdgeState`. And like I
+				 * said in 14:15 after the value has been assigned, it already has value.
+				 * 
+				 * 2021-03-06 14:46
+				 * Obviously, you can't just print `this.edgeState.absolutePoints` because this results in
+				 * all the the printed messages evaulating to the latest value.
+				 * 
+				 * Print with
+				 * 
+				 * ```
+				 * console.log(this.edgeState.absolutePoints[0].x, this.edgeState.absolutePoints[0].y, this.edgeState.absolutePoints[1].x, this.edgeState.absolutePoints[1].y)
+				 * ```
+				 * 
+				 * And obviously this will be an error when `this.edgeState.absolutePoints` is null.
+				 */
 				this.updateEdgeState(current, constraint);
 				current = this.edgeState.absolutePoints[this.edgeState.absolutePoints.length - 1];
 				pt2 = this.edgeState.absolutePoints[0];
@@ -1449,6 +1504,22 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
 			{
 				if (this.edgeState != null)
 				{
+					/**
+					 * 2021-03-05 23:16
+					 * Refer to `2021-03-04 23:09` note.
+					 * 
+					 * `this.shape.points` is undefined upto this point. The assigned value is an
+					 * array with 4 elements. Looks promising for an arrow that can curve at 90 degrees.
+					 * 
+					 * 2021-03-05 23:28
+					 * 2 elements when straight, 4 elements when diagonal, 3 elements when diagonal but short.
+					 * Refer to `2021-03-05 23:23` note for detail.
+					 * 
+					 * 2021-03-05 23:31
+					 * According to `2021-03-04 23:11`, `this.edgeState` is defined in `mouseDown`
+					 */
+					console.log(`Before: this.shape.points = this.edgeState.absolutePoints;`)
+					console.log(this.edgeState == null ? null : this.edgeState.absolutePoints)
 					this.shape.points = this.edgeState.absolutePoints;
 				}
 				else
@@ -1464,6 +1535,12 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
 					this.shape.points = pts;
 				}
 				
+				/**
+				 * 2021-03-05 23:12
+				 * I don't know why I didn't comment this. Written in 2021-03-04 21:34 note.
+				 * Tested commenting out this line, and it doesn't draw arrow for BOTH
+				 * cases using the thick arrow and the 'x' marks on the edge.
+				 */
 				this.drawPreview();
 			}
 			
@@ -1534,6 +1611,9 @@ mxConnectionHandler.prototype.mouseMove = function(sender, me)
  */
 mxConnectionHandler.prototype.updateEdgeState = function(current, constraint)
 {
+	if(this.edgeState.absolutePoints) {
+		console.log(`mxConnectionHandler.prototype.updateEdgeState > absolutePoints`)
+	}
 	// TODO: Use generic method for writing constraint to style
 	if (this.sourceConstraint != null && this.sourceConstraint.point != null)
 	{
@@ -1552,6 +1632,19 @@ mxConnectionHandler.prototype.updateEdgeState = function(current, constraint)
 		delete this.edgeState.style[mxConstants.STYLE_ENTRY_Y];
 	}
 	
+	/**
+	 * 2021-03-06 00:32
+	 * Is this the only place that assigns `absolutePoints`?
+	 * 
+	 * 2021-03-06 14:02
+	 * For both thick arrow and 'x' mark on the edge.
+	 * 
+	 * The number of `this.edgeState.absolutePoints` is different depending on the shapep or
+	 * number of curves of the currently-making arrow. 2 for straight. 3 for 90 degree 1
+	 * curve arrows and 4 for 'normal' diagonal arrows that curve twice.
+	 * 
+	 * But becomes `[null, {...}]` after the assignment? ... so this means `absolutePoints`
+	 */
 	this.edgeState.absolutePoints = [null, (this.currentState != null) ? null : current];
 	this.graph.view.updateFixedTerminalPoint(this.edgeState, this.previous, true, this.sourceConstraint);
 	
@@ -1581,6 +1674,11 @@ mxConnectionHandler.prototype.updateEdgeState = function(current, constraint)
 		}
 	}
 	
+	/**
+	 * 2021-03-06 15:39 
+	 * 
+	 * The array `this.edgeState.absolutePoints` gets more elements when it can through `this.graph.view.updatePoints`.
+	 */
 	this.graph.view.updatePoints(this.edgeState, realPoints, this.previous, this.currentState);
 	this.graph.view.updateFloatingTerminalPoints(this.edgeState, this.previous, this.currentState);
 };
@@ -1853,6 +1951,11 @@ mxConnectionHandler.prototype.reset = function()
  */
 mxConnectionHandler.prototype.drawPreview = function()
 {
+	/**
+	 * 2021-03-05 23:14 
+	 * Commented in `2021-03-04 21:41` note, commenting out `this.updatePreview`
+	 * doesn't affect drawing the line. Draws line well withoug this line.
+	 */
 	this.updatePreview(this.error == null);
 	console.log(`mxConnectionHandler.prototype.drawPreview`)
 	console.log(this.shape)

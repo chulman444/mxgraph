@@ -12523,6 +12523,11 @@ mxGraph.prototype.selectCellsForEvent = function(cells, evt)
  */
 mxGraph.prototype.createHandler = function(state)
 {
+	/**
+	 * 2021-03-23 15:05
+	 * 
+	 * Called when releasing the mouse after creating an arrow, both 'x' and thick arrow.
+	 */
 	console.log(`mxGraph.prototype.createHandler`)
 	var result = null;
 	
@@ -12579,15 +12584,18 @@ mxGraph.prototype.createEdgeHandler = function(state, edgeStyle)
 		edgeStyle == mxEdgeStyle.SideToSide ||
 		edgeStyle == mxEdgeStyle.TopToBottom)
 	{
+		console.log(`mxGraph.prototype.createEdgeHandler - result = this.createElbowEdgeHandler(state);`)
 		result = this.createElbowEdgeHandler(state);
 	}
 	else if (edgeStyle == mxEdgeStyle.SegmentConnector || 
 			edgeStyle == mxEdgeStyle.OrthConnector)
 	{
+		console.log(`mxGraph.prototype.createEdgeHandler - result = this.createEdgeSegmentHandler(state);`)
 		result = this.createEdgeSegmentHandler(state);
 	}
 	else
 	{
+		console.log(`mxGraph.prototype.createEdgeHandler - result = new mxEdgeHandler(state);`)
 		result = new mxEdgeHandler(state);
 	}
 	
@@ -13058,7 +13066,7 @@ mxGraph.prototype.fireMouseEvent = function(evtName, me, sender)
 					
 					if(before_consumed == false && me.consumed) {
 						console.log(`mxGraph.prototype.fireMouseEvent > for (var i = 0; i < this.mouseListeners.length; i++) > evtName : ${evtName}`)
-						console.log(l.constructor, l.constructor.name, me.consumed, `defaultPrevented: ${me.evt.defaultPrevented} || cancelBubble: ${me.evt.cancelBubble}`)
+						console.log(`handler 'l': `, l.constructor, l.constructor.name, me.consumed, `defaultPrevented: ${me.evt.defaultPrevented} || cancelBubble: ${me.evt.cancelBubble}`)
 						// console.log(`defaultPrevented: ${me.evt.defaultPrevented}, cancelBubble: ${me.evt.cancelBubble}`)
 						// console.log(me)
 						

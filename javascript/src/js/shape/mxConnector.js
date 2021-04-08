@@ -59,6 +59,10 @@ mxConnector.prototype.paintEdgeShape = function(c, pts)
 	var sourceMarker = this.createMarker(c, pts, true);
 	var targetMarker = this.createMarker(c, pts, false);
 
+	/**
+	 * 2021-03-06 16:27
+	 * Draws the path, no arrow head yet.
+	 */
 	mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
 	
 	// Disables shadows, dashed styles and fixes fill color for markers
@@ -73,6 +77,12 @@ mxConnector.prototype.paintEdgeShape = function(c, pts)
 	
 	if (targetMarker != null)
 	{
+		/**
+		 * 2021-03-06 16:27
+		 * This is `createArrow` and this is where the arrow head is created.
+		 * 
+		 * `createArrow` is from `mxMarker.js > createArrow`. This is defined in a closure function.
+		 */
 		targetMarker();
 	}
 };

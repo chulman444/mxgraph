@@ -77,6 +77,10 @@ mxPolyline.prototype.paintEdgeShape = function(c, pts)
 	
 	if (this.style == null || this.style[mxConstants.STYLE_CURVED] != 1)
 	{
+		/**
+		 * 2021-03-06 21:28
+		 * Uses overridden method in `Graph.js` `mxConnector.prototype.paintLine = function (c, absPts, rounded)`
+		 */
 		this.paintLine(c, pts, this.isRounded);
 	}
 	else

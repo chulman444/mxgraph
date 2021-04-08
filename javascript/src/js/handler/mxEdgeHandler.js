@@ -29,6 +29,14 @@
  */
 function mxEdgeHandler(state)
 {
+	/**
+	 * 2021-03-23 15:08
+	 * Called through `mxGraph.prototype.createEdgeHandler` which is called on releasing the mouse
+	 * when creating an arrow (both 'x' and thick arrow).
+	 * 
+	 * When I tried, this was called through `result = this.createEdgeSegmentHandler(state);` instead of
+	 * `result = new mxEdgeHandler(state);` in `mxGraph.prototype.createEdgeHandler`.
+	 */
 	if (state != null && state.shape != null)
 	{
 		this.state = state;
@@ -253,6 +261,7 @@ mxEdgeHandler.prototype.init = function()
 	// Uses the absolute points of the state
 	// for the initial configuration and preview
 	this.abspoints = this.getSelectionPoints(this.state);
+	console.log(`mxEdgeHandler.prototype.init: abspoints`, this.abspoints)
 	this.shape = this.createSelectionShape(this.abspoints);
 	this.shape.dialect = (this.graph.dialect != mxConstants.DIALECT_SVG) ?
 		mxConstants.DIALECT_MIXEDHTML : mxConstants.DIALECT_SVG;
@@ -890,6 +899,7 @@ mxEdgeHandler.prototype.isCustomHandleEvent = function(me)
  */
 mxEdgeHandler.prototype.mouseDown = function(sender, me)
 {
+	console.log(`mxEdgeHandler.prototype.mouseDown`)
 	var handle = this.getHandleForEvent(me);
 	
 	if (this.bends != null && this.bends[handle] != null)
@@ -1527,6 +1537,15 @@ mxEdgeHandler.prototype.mouseMove = function(sender, me)
 				this.marker.reset();
 			}
 			
+			/**
+			 * 2021-03-23 15:13
+			 * 
+			 * `this.abspoints` is the same value as one assigned in `mxEdgeHandler.prototype.init`
+			 * until it's updated by ...
+			 * 
+			 * need to figure out where `this.abspoints` is updated.
+			 */
+			console.log(`mxEdgeHandler.prototype.mouseMove > before clone :`, this.abspoints)
 			var clone = this.clonePreviewState(this.currentPoint, (terminalState != null) ? terminalState.cell : null);
 			this.updatePreviewState(clone, this.currentPoint, terminalState, me, outline);
 
@@ -1542,7 +1561,15 @@ mxEdgeHandler.prototype.mouseMove = function(sender, me)
 		// This should go before calling isOutlineConnectEvent above. As a workaround
 		// we add an offset of gridSize to the hint to avoid problem with hit detection
 		// in highlight.isHighlightAt (which uses comonentFromPoint)
+		/**
+		 * 2021-03-23 14:48
+		 * Commenting this out doesn't draw the 'preview' when modifying the arrow.
+		 * 
+		 * Has no effect when creating an arrow with the 'x' and the thick arrow.
+		 */
+		console.log(`mxEdgeHandler.prototype.mouseMove > before drawPreview :`, this.abspoints)
 		this.drawPreview();
+		console.log(`mxEdgeHandler.prototype.mouseMove > after drawPreview :`, this.abspoints)
 		mxEvent.consume(me.getEvent());
 		me.consume();
 	}

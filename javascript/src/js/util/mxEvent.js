@@ -267,7 +267,7 @@ var mxEvent =
 			}
 			else if (!mxEvent.isConsumed(evt))
 			{
-				console.log(`mxEvent.redirectMouseEvents > mxEvent.addGestureListeners > move`)
+				// console.log(`mxEvent.redirectMouseEvents > mxEvent.addGestureListeners > move`)
 				graph.fireMouseEvent(mxEvent.MOUSE_MOVE, new mxMouseEvent(evt, getState(evt)));
 			}
 		},
